@@ -1262,6 +1262,17 @@
       th:nth-child(6), td:nth-child(6) { width: 10%; }
       th:nth-child(7), td:nth-child(7) { width: 18%; }
 
+      table.has-cocurricular th:nth-child(1), table.has-cocurricular td:nth-child(1) { width: 4%; }
+      table.has-cocurricular th:nth-child(2), table.has-cocurricular td:nth-child(2) { width: 20%; }
+      table.has-cocurricular th:nth-child(3), table.has-cocurricular td:nth-child(3) { width: 13%; }
+      table.has-cocurricular th:nth-child(4), table.has-cocurricular td:nth-child(4) { width: 8%; }
+      table.has-cocurricular th:nth-child(5), table.has-cocurricular td:nth-child(5) { width: 9%; }
+      table.has-cocurricular th:nth-child(6), table.has-cocurricular td:nth-child(6) { width: 8%; }
+      table.has-cocurricular th:nth-child(7), table.has-cocurricular td:nth-child(7) { width: 12%; }
+      table.has-cocurricular th:nth-child(8), table.has-cocurricular td:nth-child(8) { width: 9%; }
+      table.has-cocurricular th:nth-child(9), table.has-cocurricular td:nth-child(9) { width: 9%; }
+      table.has-cocurricular th:nth-child(10), table.has-cocurricular td:nth-child(10) { width: 8%; }
+
       .table-wrap {
         overflow: visible !important;
       }
@@ -1279,6 +1290,7 @@
 
     @media print and (orientation: portrait) {
       table { font-size: 7px; }
+      table.has-cocurricular { font-size: 5.8px; }
       th, td { padding: 3px 4px; }
       .print-heading h2 { font-size: 16px; }
       .summary-grid { gap: 6px; margin: 8px 0; }
@@ -1414,10 +1426,10 @@
             <span>Rumah Sukan</span>
             <div id="houseButtons" class="house-grid">
               <button class="house-button house-all active" type="button" data-house="all">Semua Rumah</button>
-              <button class="house-button house-merah" type="button" data-house="MERAH">Merah</button>
-              <button class="house-button house-biru" type="button" data-house="BIRU">Biru</button>
-              <button class="house-button house-hijau" type="button" data-house="HIJAU">Hijau</button>
-              <button class="house-button house-kuning" type="button" data-house="KUNING">Kuning</button>
+              <button class="house-button house-merah" type="button" data-house="MERAH">Laksamana</button>
+              <button class="house-button house-biru" type="button" data-house="BIRU">Bendahara</button>
+              <button class="house-button house-hijau" type="button" data-house="HIJAU">Panglima</button>
+              <button class="house-button house-kuning" type="button" data-house="KUNING">Temenggong</button>
             </div>
           </div>
         </div>
@@ -1465,9 +1477,9 @@
           <div class="summary-card summary-pink"><p>Perempuan</p><strong id="summaryFemale">0</strong></div>
         </div>
         <div class="table-wrap">
-          <table>
+          <table id="classListTable">
             <thead>
-              <tr>
+              <tr id="classListHead">
                 <th>BIL</th>
                 <th>NAMA MURID</th>
                 <th>NO K/P</th>
@@ -1528,7 +1540,7 @@
       maskIdentityNumber: false
     };
 
-    const CACHE_KEY = "sistem-carian-pelajar:public-cache:kayu-ara-pasong:v1";
+    const CACHE_KEY = "sistem-carian-pelajar:public-cache:kayu-ara-pasong:v2";
     const LOADING_MESSAGE = "Memuatkan data pelajar daripada Google Sheets...";
     const RESULT_BATCH_SIZE = 60;
     const DEFAULT_FILTERS = {
@@ -1582,12 +1594,13 @@
         "managementSection", "managementYear", "managementClass",
         "generateClassButton", "classListSection", "printBadge",
         "printSchoolName", "printMeta", "classListMeta", "summaryTotal",
-        "summaryMale", "summaryFemale", "classListBody", "printButton",
+        "summaryMale", "summaryFemale", "classListTable", "classListHead", "classListBody", "printButton",
         "closeClassListButton", "adminModal", "adminForm", "closeAdminModalButton",
         "adminPassword", "adminError", "unlockButton"
       ].forEach((id) => {
         elements[id] = document.getElementById(id);
       });
+      elements.managementSection.insertAdjacentElement("afterend", elements.classListSection);
     }
 
     function applyConfigToPage() {
@@ -1829,11 +1842,21 @@
 
     function normalizeHouse(value) {
       const text = cleanText(value).toLocaleUpperCase("ms-MY");
-      if (text.includes("MERAH") || text === "RED") return "MERAH";
-      if (text.includes("BIRU") || text === "BLUE") return "BIRU";
-      if (text.includes("HIJAU") || text === "GREEN") return "HIJAU";
-      if (text.includes("KUNING") || text === "YELLOW") return "KUNING";
+      if (text.includes("MERAH") || text.includes("LAKSAMANA") || text === "RED") return "MERAH";
+      if (text.includes("BIRU") || text.includes("BENDAHARA") || text === "BLUE") return "BIRU";
+      if (text.includes("HIJAU") || text.includes("PANGLIMA") || text === "GREEN") return "HIJAU";
+      if (text.includes("KUNING") || text.includes("TEMENGGONG") || text === "YELLOW") return "KUNING";
       return "";
+    }
+
+    function houseDisplayName(value) {
+      const labels = {
+        MERAH: "LAKSAMANA",
+        BIRU: "BENDAHARA",
+        KUNING: "TEMENGGONG",
+        HIJAU: "PANGLIMA"
+      };
+      return labels[normalizeHouse(value)] || "Tiada rumah";
     }
 
     function normalizeMedical(value) {
@@ -1845,6 +1868,8 @@
 
     function parseClass(value) {
       const kelas = cleanText(value).toLocaleUpperCase("ms-MY");
+      const ppki = kelas.match(/^PPKI\s+(.+)$/);
+      if (ppki) return { kelas, tahun: "PPKI", namaKelas: cleanText(ppki[1]) };
       const direct = kelas.match(/^([1-6])\s+(.+)$/);
       const withYear = kelas.match(/^TAHUN\s*([1-6])\s+(.+)$/);
       const loose = kelas.match(/\b([1-6])\b\s*([A-Z0-9 ]+)?/);
@@ -1852,6 +1877,12 @@
       const tahun = match ? Number.parseInt(match[1], 10) : null;
       const namaKelas = cleanText(match?.[2] || "");
       return { kelas, tahun: Number.isFinite(tahun) ? tahun : null, namaKelas };
+    }
+
+    function yearSortValue(value) {
+      if (value === "PPKI") return 7;
+      const numeric = Number(value);
+      return Number.isFinite(numeric) ? numeric : 99;
     }
 
     function medicalIcon(value) {
@@ -1901,8 +1932,8 @@
 
     function sortStudents(students) {
       return [...students].sort((a, b) => {
-        const yearA = a.tahun ?? 99;
-        const yearB = b.tahun ?? 99;
+        const yearA = yearSortValue(a.tahun);
+        const yearB = yearSortValue(b.tahun);
         if (yearA !== yearB) return yearA - yearB;
         const classCompare = a.kelas.localeCompare(b.kelas, "ms-MY");
         if (classCompare !== 0) return classCompare;
@@ -2166,15 +2197,15 @@
     }
 
     function populateYears() {
-      const years = [...new Set(state.students.map((student) => student.tahun).filter(Boolean))].sort((a, b) => a - b);
-      elements.yearFilter.innerHTML = `<option value="all">Semua Tahun</option>${years.map((year) => `<option value="${year}">Tahun ${year}</option>`).join("")}`;
+      const years = [...new Set(state.students.map((student) => student.tahun).filter(Boolean))].sort((a, b) => yearSortValue(a) - yearSortValue(b));
+      elements.yearFilter.innerHTML = `<option value="all">Semua Tahun</option>${years.map((year) => `<option value="${year}">${year === "PPKI" ? "PPKI" : `Tahun ${year}`}</option>`).join("")}`;
       elements.yearFilter.value = state.filters.tahun;
     }
 
     function populateClassFilter() {
       const classes = [...new Set(state.students
         .filter((student) => state.filters.tahun === "all" || String(student.tahun) === state.filters.tahun)
-        .map((student) => student.kelas)
+        .map((student) => student.namaKelas)
         .filter(Boolean))]
         .sort((a, b) => a.localeCompare(b, "ms-MY"));
 
@@ -2204,8 +2235,8 @@
     }
 
     function populateManagementYears() {
-      const years = [...new Set(state.students.map((student) => student.tahun).filter(Boolean))].sort((a, b) => a - b);
-      elements.managementYear.innerHTML = `<option value="">Pilih Tahun</option>${years.map((year) => `<option value="${year}">Tahun ${year}</option>`).join("")}`;
+      const years = [...new Set(state.students.map((student) => student.tahun).filter(Boolean))].sort((a, b) => yearSortValue(a) - yearSortValue(b));
+      elements.managementYear.innerHTML = `<option value="">Pilih Tahun</option>${years.map((year) => `<option value="${year}">${year === "PPKI" ? "PPKI" : `Tahun ${year}`}</option>`).join("")}`;
       elements.managementYear.value = state.managementYear;
     }
 
@@ -2216,7 +2247,10 @@
         .filter(Boolean))]
         .sort((a, b) => a.localeCompare(b, "ms-MY"));
       elements.managementClass.disabled = !state.managementYear;
-      elements.managementClass.innerHTML = `<option value="">Pilih Kelas</option>${classes.map((className) => `<option value="${escapeAttribute(className)}">${escapeHtml(className)}</option>`).join("")}`;
+      elements.managementClass.innerHTML = `<option value="">Pilih Kelas</option>${classes.map((className) => {
+        const student = state.students.find((item) => item.kelas === className);
+        return `<option value="${escapeAttribute(className)}">${escapeHtml(student?.namaKelas || className)}</option>`;
+      }).join("")}`;
       if (!classes.includes(state.managementClass)) state.managementClass = "";
       elements.managementClass.value = state.managementClass;
     }
@@ -2235,12 +2269,12 @@
       const search = normalizeName(state.debouncedSearch);
       state.filteredStudents = sortStudents(state.students.filter((student) => {
         if (search) {
-          const fields = [student.nama, student.kelas, student.rumahSukan, student.unitBeruniform, student.sukanPermainan, student.kelabPersatuan];
+          const fields = [student.nama, student.kelas, student.rumahSukan, houseDisplayName(student.rumahSukan), student.unitBeruniform, student.sukanPermainan, student.kelabPersatuan];
           if (state.adminActive) fields.push(student.noKP);
           if (!fields.map(normalizeName).join(" ").includes(search)) return false;
         }
         if (state.filters.tahun !== "all" && String(student.tahun) !== state.filters.tahun) return false;
-        if (state.filters.kelas !== "all" && student.kelas !== state.filters.kelas) return false;
+        if (state.filters.kelas !== "all" && student.namaKelas !== state.filters.kelas) return false;
         if (state.filters.jantina !== "all" && student.jantina !== state.filters.jantina) return false;
         if (state.filters.rumahSukan !== "all" && student.rumahSukan !== state.filters.rumahSukan) return false;
         if (state.filters.unitBeruniform !== "all" && student.unitBeruniform !== state.filters.unitBeruniform) return false;
@@ -2342,7 +2376,7 @@
     function renderHouseBadge(house) {
       const key = cleanText(house).toLocaleLowerCase("ms-MY");
       const className = key ? `badge-${key}` : "house-empty";
-      return `<span class="pill ${className}">${escapeHtml(house || "Tiada rumah")}</span>`;
+      return `<span class="pill ${className}">${escapeHtml(houseDisplayName(house))}</span>`;
     }
 
     function renderActivityGrid(student) {
@@ -2509,14 +2543,21 @@
 
     function renderClassList() {
       elements.classListSection.hidden = state.classList.length === 0;
+      const showCocurricular = ["4", "5", "6"].includes(String(state.managementYear));
+      const yearLabel = state.managementYear === "PPKI" ? "PPKI" : `Tahun ${displayValue(state.managementYear)}`;
       const total = state.classList.length;
       const male = state.classList.filter((student) => student.jantina === "LELAKI").length;
       const female = state.classList.filter((student) => student.jantina === "PEREMPUAN").length;
       elements.summaryTotal.textContent = total;
       elements.summaryMale.textContent = male;
       elements.summaryFemale.textContent = female;
-      elements.classListMeta.textContent = `Tahun ${displayValue(state.managementYear)} · Kelas ${displayValue(state.managementClass)}`;
-      elements.printMeta.textContent = `Tahun ${displayValue(state.managementYear)} · Kelas ${displayValue(state.managementClass)} · Tarikh cetakan: ${formatDateTime(new Date())}`;
+      elements.classListMeta.textContent = `${yearLabel} · Kelas ${displayValue(state.classList[0]?.namaKelas || state.managementClass)}`;
+      elements.printMeta.textContent = `${yearLabel} · Kelas ${displayValue(state.classList[0]?.namaKelas || state.managementClass)} · Tarikh cetakan: ${formatDateTime(new Date())}`;
+      elements.classListTable.classList.toggle("has-cocurricular", showCocurricular);
+      elements.classListHead.innerHTML = `
+        <th>BIL</th><th>NAMA MURID</th><th>NO K/P</th><th>JANTINA</th><th>RUMAH SUKAN</th><th>KELAS</th><th>SEJARAH PERUBATAN</th>
+        ${showCocurricular ? "<th>UNIT BERUNIFORM</th><th>SUKAN PERMAINAN</th><th>KELAB PERSATUAN</th>" : ""}
+      `;
       elements.classListBody.innerHTML = state.classList.map((student, index) => `
         <tr>
           <td>${index + 1}</td>
@@ -2526,6 +2567,7 @@
           <td>${renderHouseBadge(student.rumahSukan)}</td>
           <td>${escapeHtml(displayValue(student.kelas))}</td>
           <td>${student.sejarahPerubatan ? `${medicalIcon(student.sejarahPerubatan)} ${escapeHtml(student.sejarahPerubatan)}` : "-"}</td>
+          ${showCocurricular ? `<td>${escapeHtml(student.unitBeruniform || "-")}</td><td>${escapeHtml(student.sukanPermainan || "-")}</td><td>${escapeHtml(student.kelabPersatuan || "-")}</td>` : ""}
         </tr>
       `).join("");
       elements.classListSection.scrollIntoView({ behavior: "smooth", block: "start" });

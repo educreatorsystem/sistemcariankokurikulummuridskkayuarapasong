@@ -74,6 +74,18 @@ Data kokurikulum:
 - Filter Unit Beruniform, Sukan Permainan dan Kelab Persatuan dijana automatik daripada CSV.
 - Ketiga-tiga maklumat dipadankan berdasarkan Nama Murid dan dipaparkan pada kad pelajar.
 
+Penjenamaan rumah sukan:
+- Merah = Laksamana
+- Biru = Bendahara
+- Kuning = Temenggong
+- Hijau = Panglima
+
+Sokongan kelas khas:
+- PPKI dipaparkan bersama pilihan Tahun 1 hingga Tahun 6.
+- TOPAZ dipaparkan bersama RUBY, JADE, SAPPHIRE dan ZIRCON pada filter kelas.
+- Senarai Pengurusan Murid muncul terus di bawah panel selepas dijana.
+- Tahun 4, 5 dan 6 memaparkan Unit Beruniform, Sukan Permainan dan Kelab Persatuan dalam jadual.
+
 Status Apps Script:
 - URL Apps Script telah dimasukkan dalam index.html.
 - Deployment baharu telah diuji dan memberi respons HTTP 200 dalam format JSON.
