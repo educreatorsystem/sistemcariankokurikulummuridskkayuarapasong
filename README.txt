@@ -1,0 +1,80 @@
+SISTEM CARIAN PELAJAR - SEKOLAH KEBANGSAAN KAYU ARA PASONG
+
+Fail utama:
+- sistem-carian-pelajar-standalone.html
+
+Fail GitHub/PWA:
+- index.html
+- manifest.webmanifest
+- service-worker.js
+- offline.html
+- folder icons
+
+Fail ini ialah versi satu fail yang mengandungi HTML, CSS dan JavaScript.
+Ia sesuai untuk dimuat naik semula ke ChatGPT, Canva Code atau Gemini Canvas untuk diedit.
+
+Nama sekolah, kod sekolah JBA1021, lencana dan kedua-dua URL CSV telah dimasukkan.
+
+Kaedah penggabungan data:
+- Tab KELAS DAN NAMA MURID menjadi sumber rekod utama.
+- Sistem menormalkan huruf, ruang dan aksara tersembunyi pada Nama Murid.
+- Rumah Sukan dipadankan daripada tab NAMA MURID, RUMAH SUKAN DAN NO K/P hanya apabila nama sama.
+- No K/P dibaca daripada kolum ketiga tab kedua dan hanya dipaparkan selepas pengesahan admin.
+
+Penambahbaikan prestasi dan cetakan:
+- Sistem memaparkan 60 kad pada satu masa dan menyediakan butang Papar Lagi.
+- Carian dan tapisan masih melibatkan semua rekod, bukan hanya kad yang sedang dipaparkan.
+- Pengesanan aktiviti admin tidak lagi berjalan pada setiap pergerakan tetikus.
+- Pengurusan Murid diletakkan di bahagian atas selepas admin log masuk.
+- Jadual cetakan menyokong pilihan potret dan landskap serta membalut teks supaya semua kolum kelihatan.
+
+Mod admin GitHub telah dikonfigurasi menggunakan pengesahan hash SHA-256 dalam pelayar.
+
+Fail admin:
+- google-apps-script-admin-template.gs
+
+Kata laluan admin asal telah dikonfigurasi dalam bentuk hash SHA-256. Nilai teks biasa
+tidak disimpan dalam fail GitHub. Fail Apps Script disertakan sebagai pilihan untuk
+peningkatan keselamatan pada masa hadapan.
+
+CARA PUBLISH KE GITHUB PAGES
+1. Muat naik semua kandungan folder GitHub ke repository.
+2. Pastikan fail utama bernama index.html dan berada di root repository.
+3. Buka Settings > Pages.
+4. Pilih Deploy from a branch, branch main dan folder /(root).
+5. Simpan dan tunggu pautan GitHub Pages disediakan.
+
+CARA PASANG SEBAGAI APLIKASI
+Android (Chrome):
+1. Buka pautan GitHub Pages.
+2. Tekan menu tiga titik.
+3. Pilih Install app atau Add to Home screen.
+
+iPhone/iPad (Safari):
+1. Buka pautan GitHub Pages menggunakan Safari.
+2. Tekan butang Share.
+3. Pilih Add to Home Screen.
+4. Tekan Add.
+
+Nota: PWA memerlukan HTTPS. GitHub Pages menyediakan HTTPS secara automatik.
+
+CARA AKTIFKAN ADMIN
+1. Tekan butang Admin pada sistem.
+2. Masukkan kata laluan admin.
+3. Selepas pengesahan berjaya, No K/P penuh akan dipaparkan pada kad murid.
+4. Tekan Log Keluar untuk menyembunyikan semula No K/P.
+
+Nota privasi:
+- Versi GitHub membaca tab kedua yang sedang diterbitkan sebagai CSV awam. Sesiapa yang mengetahui URL CSV berpotensi membaca datanya di luar sistem.
+- Untuk tahap keselamatan lebih tinggi, gunakan fail Apps Script dan jadikan tab No K/P tidak diterbitkan secara awam.
+- Spreadsheet ID 1VlawsCegsCWaN_-ULQuKW88wCe4N-mUxJ0yQjPRdOU8 dan GID 1605065552 telah dimasukkan dalam fail .gs.
+- Apps Script membaca tab sensitif terus melalui SpreadsheetApp selepas pengesahan admin.
+
+Data kokurikulum:
+- Filter Unit Beruniform, Sukan Permainan dan Kelab Persatuan dijana automatik daripada CSV.
+- Ketiga-tiga maklumat dipadankan berdasarkan Nama Murid dan dipaparkan pada kad pelajar.
+
+Status Apps Script:
+- URL Apps Script telah dimasukkan dalam index.html.
+- Deployment baharu telah diuji dan memberi respons HTTP 200 dalam format JSON.
+- Akses Web App kepada semua pengguna telah berjaya disahkan.
